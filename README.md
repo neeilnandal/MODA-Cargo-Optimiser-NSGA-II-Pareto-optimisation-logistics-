@@ -1,0 +1,2 @@
+# Multi-criteria-optimisation-and-Data-Analysis-MODA---Cargo-Ship-
+This was a group project done in teams of 4 students. The situation involves a cargo ship MS Leiden traveling on a route involving five harbors in northern Europe: Rotterdam, Hamburg, Kiel, Aarhus, and Copenhagen. The task is to  help the Captain with the loading and unloading plan (for the destination harbors) that produce an even solution
