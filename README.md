@@ -514,6 +514,3 @@ constrained-optimization
 python
 evolutionary-algorithms
 ```
-loading optimization project for balancing unloading order, vessel stability, and slot utilization under stacking constraints.
-```
-
