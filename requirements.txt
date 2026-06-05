@@ -1,0 +1,5 @@
+numpy 
+pandas 
+matplotlib 
+pymoo==0.6.0
+jupyter
