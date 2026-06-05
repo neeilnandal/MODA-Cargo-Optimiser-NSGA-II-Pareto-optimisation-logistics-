@@ -1,4 +1,5 @@
 # Multi-Objective Container Loading Optimization with NSGA-II
+Built a multi-objective container loading optimizer using NSGA-II to balance unloading priority, center-of-gravity stability, and slot utilization under stacking and feasibility constraints.
 
 A Python-based **multi-objective optimization project** for solving a container placement problem using **NSGA-II**. The project models a vessel loading scenario where containers must be assigned to available slots while balancing unloading priority, vessel stability, and capacity utilization under stacking constraints.
 
