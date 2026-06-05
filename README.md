@@ -199,23 +199,6 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-## Requirements
-
-Recommended `requirements.txt`:
-
-```text
-numpy
-pandas
-matplotlib
-pymoo==0.6.0
-```
-
-Optional, if keeping the notebook:
-
-```text
-jupyter
-```
-
 ## Run the Project
 
 If using the notebook:
