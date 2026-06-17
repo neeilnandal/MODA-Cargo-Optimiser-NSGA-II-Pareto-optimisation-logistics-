@@ -9,7 +9,6 @@ The goal is to identify route and loading strategies that balance competing obje
 - Minimize total operating cost
 - Minimize fuel consumption
 - Minimize delivery time
-- Minimize CO2 emissions
 - Maximize cargo utilization
 - Reduce operational risk
 
