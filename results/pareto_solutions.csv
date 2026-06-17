@@ -81,3 +81,19 @@
  13.32353898 45.70419354 22.94494125 55.00006236 45.60210425 33.62630968
  24.96967241 86.43232546 69.97568872  0.47969912 18.70672281 27.44164261]
 
+--- Pareto Front Solutions ---
+#1: Containers Used = 96.0, Violations = 29.0, CoG Deviation = 0.647
+#2: Containers Used = 96.0, Violations = 15.0, CoG Deviation = 0.753
+#3: Containers Used = 96.0, Violations = 30.0, CoG Deviation = 0.640
+#4: Containers Used = 96.0, Violations = 19.0, CoG Deviation = 0.700
+#5: Containers Used = 96.0, Violations = 17.0, CoG Deviation = 0.715
+#6: Containers Used = 96.0, Violations = 21.0, CoG Deviation = 0.685
+#7: Containers Used = 96.0, Violations = 13.0, CoG Deviation = 0.826
+#8: Containers Used = 96.0, Violations = 27.0, CoG Deviation = 0.669
+#9: Containers Used = 96.0, Violations = 18.0, CoG Deviation = 0.704
+#10: Containers Used = 96.0, Violations = 14.0, CoG Deviation = 0.797
+#11: Containers Used = 96.0, Violations = 21.0, CoG Deviation = 0.685
+#12: Containers Used = 96.0, Violations = 28.0, CoG Deviation = 0.663
+#13: Containers Used = 96.0, Violations = 12.0, CoG Deviation = 0.844
+#14: Containers Used = 96.0, Violations = 16.0, CoG Deviation = 0.717
+#15: Containers Used = 96.0, Violations = 20.0, CoG Deviation = 0.690
