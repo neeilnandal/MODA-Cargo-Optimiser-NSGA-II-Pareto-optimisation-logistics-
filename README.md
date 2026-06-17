@@ -101,10 +101,9 @@ container-loading-nsga2-v2/
 ├── .gitignore
 └── results/
     ├── containers.csv
-    ├── positions.csv
-    ├── pareto_front.csv
-    ├── selected_layout.csv
-    ├── solution_summary.csv
+    ├── experiment-metrics.md
+    ├── pareto_solutions.csv
+    ├── results-discussion.md
     ├── pareto_front_3d.png
     └── selected_layout_3d.png
 ```
