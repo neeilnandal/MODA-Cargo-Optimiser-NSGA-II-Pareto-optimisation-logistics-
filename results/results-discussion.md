@@ -10,3 +10,5 @@ deviation of 0.6467, placing the solution among the top ~10–15% in terms of we
 ❖ Algorithm flexibility: The NSGA-II approach effectively explores Pareto-optimal solutions, allowing 
 decision-makers to choose based on priorities (i.e. stability vs speed of unloading)
 Shipping companies can use this model to reduce costs and speed up port operations
+
+Shipping companies can use this model to reduce costs and speed up port operations
