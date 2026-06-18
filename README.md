@@ -383,7 +383,7 @@ Recommended hygiene:
 
 ## Final Verdict
 
-This project is strongest when positioned as a **controlled optimisation prototype**, not as a production shipping solver.
+This project is positioned as a **controlled optimisation prototype**, not as a production shipping solver.
 
 Its value is that it shows how multi-objective optimisation can turn a messy logistics planning problem into a set of interpretable decision options. That is exactly the kind of thinking needed in AI engineering, data science, operations research, and decision intelligence roles.
 
