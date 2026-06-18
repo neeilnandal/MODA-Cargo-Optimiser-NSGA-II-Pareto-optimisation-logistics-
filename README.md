@@ -1,297 +1,395 @@
-Multi-Objective Container Loading Optimization with NSGA-II
-A Python-based multi-objective ooptimisationproject for container placement using NSGA-II. The project models a vessel loading problem where containers must be assigned to slots while balancing unloading priority, vessel stability, and slot utilization under stacking constraints.
+# MODA Cargo Optimiser: NSGA-II Pareto Optimisation for Container Loading
 
-Repository Summary
-Field	Details
-Project type	Multi-objective optimization
-Domain	Logistics, vessel loading, operations research
-Algorithm	NSGA-II
-Library	`pymoo`
-Language	Python
-Data	Synthetic containers with random weights and unloading priorities
-Main outputs	Pareto front, selected layout, solution summary, 3D plots
-Core skills	Constraint modeling, Pareto optimization, logistics simulation, decision analytics
+A multi-objective optimisation project for container placement on a cargo vessel using **NSGA-II** and **Pareto-front analysis**.
 
-Problem
-Container loading is not just a packing problem.
-A good loading plan must balance several competing goals:
-Keep unloading order practical
-Maintain stable weight distribution
-Use vessel slots efficiently
-Avoid unsupported stacks
-Avoid unsafe heavy-over-light stacking patterns
-Keep the final layout interpretable for operations teams
-These goals conflict. A layout that uses more slots may create worse stack feasibility. A layout that improves unloading order may shift the center of gravity. A layout with better balance may force awkward container placement.
-That makes the problem a good fit for multi-objective optimization.
+The project models a simplified container-loading problem where containers must be assigned to vessel slots while balancing unloading order, vessel stability, slot utilisation, and stacking feasibility. The goal is not to produce one “perfect” loading plan. The goal is to generate a set of strong trade-off solutions that a logistics planner can compare.
 
-First-Principles View
+## Repository Summary
+
+| Field         | Details                                                                                                      |
+| ------------- | ------------------------------------------------------------------------------------------------------------ |
+| Project type  | Multi-objective optimisation                                                                                 |
+| Domain        | Logistics, vessel loading, operations research                                                               |
+| Algorithm     | NSGA-II                                                                                                      |
+| Library       | `pymoo`                                                                                                      |
+| Language      | Python                                                                                                       |
+| Main notebook | `container_ship_nsga_v2.ipynb`                                                                               |
+| Data          | Synthetic container weights and unloading priorities                                                         |
+| Main outputs  | Pareto solutions, constraint metrics, 3D layout visualisations                                               |
+| Core skills   | Constraint modelling, Pareto optimisation, evolutionary algorithms, logistics simulation, decision analytics |
+
+## Problem
+
+Container loading is not only a packing problem.
+
+A useful vessel-loading plan must balance several competing goals:
+
+* Keep unloading order practical
+* Maintain stable weight distribution
+* Use vessel slots efficiently
+* Avoid duplicate slot assignments
+* Avoid unsupported stacks
+* Avoid unsafe heavy-over-light stacking patterns
+* Keep the final layout interpretable for operations teams
+
+These objectives conflict. A layout that improves slot utilisation may create stacking issues. A layout that improves unloading order may affect balance. A layout that improves balance may require less convenient placement.
+
+That makes the problem suitable for **multi-objective optimisation**.
+
+## First-Principles View
+
 The real question is not:
+
 ```text
 Can we place containers into available slots?
 ```
-The real question is:
+
+The better question is:
+
 ```text
 Can we generate feasible loading layouts that balance unloading order, vessel stability, and capacity usage?
 ```
-A single weighted score would hide the trade-offs. NSGA-II is useful because it produces a Pareto front, where each solution represents a different operational compromise.
 
-Solution
-The project formulates container loading as a constrained multi-objective assignment problem.
-Each candidate solution assigns containers to vessel slots.
+A single weighted score would hide important trade-offs. NSGA-II is useful because it produces a Pareto front, where each solution represents a different operational compromise.
+
+## Solution
+
+The project formulates vessel loading as a constrained multi-objective assignment problem.
+
+Each candidate solution assigns containers to vessel slots:
+
 ```text
 x[i] = slot assigned to container i
 ```
-The optimizer evaluates each layout using three objectives:
-Minimize unloading priority violations
-Minimize center-of-gravity deviation
-Maximize used slots
-Because `pymoo` minimizes objectives by default, slot utilization is encoded as:
-```python
+
+The optimiser evaluates each layout using three objectives:
+
+| Objective                   | Direction | Meaning                                                     |
+| --------------------------- | --------- | ----------------------------------------------------------- |
+| Unloading violations        | Minimise  | Reduce cases where unloading order is operationally awkward |
+| Centre-of-gravity deviation | Minimise  | Keep weight distribution close to the vessel centre         |
+| Used slots                  | Maximise  | Increase slot utilisation                                   |
+
+Because `pymoo` minimises objectives by default, slot utilisation is encoded as:
+
+```text
 -used_slots
 ```
-This keeps the optimization compatible with minimization while still rewarding higher utilization.
 
-Vessel Layout
-The vessel is modelled as a 3D grid.
+This allows the optimiser to reward higher utilisation while staying compatible with minimisation.
+
+## Vessel Layout
+
+The vessel is represented as a 3D grid:
+
 ```text
 Bays × Rows × Tiers
 ```
+
 Default configuration:
+
 ```text
 8 bays × 4 rows × 3 tiers = 96 available positions
 ```
-Each position is represented as:
+
+Each slot is represented as:
+
 ```text
 (bay, row, tier)
 ```
-Each container has:
-Container ID
-Weight
-Unloading priority
 
-Objectives
-Objective	Direction	Meaning
-Unloading violations	Minimize	Reduce cases where earlier-unload containers are blocked by later-unload containers
-Center-of-gravity deviation	Minimize	Keep horizontal weight distribution near the vessel center
-Used slots	Maximize	Increase container placement utilization
+Each synthetic container has:
 
-Constraints
-Constraint	Purpose
-Duplicate slot assignment	Prevent multiple containers from occupying the same vessel slot
-Unsupported stack	Prevent containers from floating above empty positions
-Unsafe weight stack	Penalize containers placed above another container when the upper container is too much heavier
-In `pymoo`, constraints are feasible when `G <= 0`. Since this project uses violation counts, a constraint value of `0` means feasible and a positive value means violation.
+| Attribute    | Meaning                     |
+| ------------ | --------------------------- |
+| Container ID | Unique container identifier |
+| Weight       | Synthetic container weight  |
+| Priority     | Unloading priority group    |
 
-Algorithm
-The project uses NSGA-II, a genetic algorithm designed for multi-objective optimization.
-NSGA-II is suitable because:
-The assignment space is large
-The objectives conflict
-The constraints are non-trivial
-There is no single best layout
-Decision makers need trade-off options
+## Constraints
 
-Project Structure
+| Constraint                | Purpose                                                      |
+| ------------------------- | ------------------------------------------------------------ |
+| Duplicate slot assignment | Prevent multiple containers from occupying the same slot     |
+| Unsupported stack         | Prevent containers from being placed above empty lower tiers |
+| Unsafe weight stack       | Penalise unsafe heavy-over-light stacking patterns           |
+
+In `pymoo`, constraints are feasible when:
+
 ```text
-container-loading-nsga2-v2/
-│
-├── container_loading_nsga2_v2.ipynb
-├── README.md
-├── requirements.txt
-├── .gitignore
-└── results/
-    ├── containers.csv
-    ├── experiment-metrics.md
-    ├── pareto_solutions.csv
-    ├── results-discussion.md
-    ├── pareto_front_3d.png
-    └── selected_layout_3d.png
+G <= 0
 ```
-The `results/` folder is generated after running the script.
 
-Installation
-Clone the repository:
-```bash
-git clone https://github.com/your-username/container-loading-nsga2-v2.git
-cd container-loading-nsga2-v2
+Since this project uses violation counts, a value of `0` means feasible and a positive value means a constraint violation exists.
+
+## Algorithm
+
+The project uses **NSGA-II**, a genetic algorithm designed for multi-objective optimisation.
+
+NSGA-II is suitable because:
+
+* The assignment search space is large
+* The objectives conflict
+* Constraints are non-trivial
+* There is no single universally best layout
+* Decision-makers need trade-off options, not one hidden weighted score
+
+## OODA Summary
+
+### Observe
+
+Container loading requires trade-offs across unloading sequence, stability, capacity usage, and stacking feasibility.
+
+### Orient
+
+A single-objective optimiser would hide trade-offs. A multi-objective method is better because the final decision depends on operational priorities.
+
+### Decide
+
+Use NSGA-II to generate a Pareto front of candidate loading layouts.
+
+### Act
+
+Generate synthetic container data, optimise layouts, export Pareto solutions, visualise layouts, and summarise trade-offs for decision support.
+
+## Project Structure
+
+```text
+MODA-Cargo-Optimiser-NSGA-II-Pareto-optimisation-logistics-/
+│
+├── README.md
+├── LICENSE
+├── .gitignore
+├── requirements.txt
+├── MODA25A2_42.pdf
+├── container_ship_nsga_v2.ipynb
+│
+├── assets/
+│   ├── pareto-front.png
+│   ├── selected-layout-3d.png
+│   ├── optimisation-workflow.png
+│   └── objective-comparison.png
+│
+└── results/
+    ├── pareto_solutions.csv
+    ├── experiment-summary.md
+    ├── results-discussion.md
+    └── raw_nsga2_output.txt
 ```
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/neeilnandal/MODA-Cargo-Optimiser-NSGA-II-Pareto-optimisation-logistics-.git
+cd MODA-Cargo-Optimiser-NSGA-II-Pareto-optimisation-logistics-
+```
+
 Create a virtual environment:
+
 ```bash
 python -m venv venv
 ```
+
 Activate the environment.
+
 On macOS or Linux:
+
 ```bash
 source venv/bin/activate
 ```
+
 On Windows:
+
 ```bash
 venv\Scripts\activate
 ```
+
 Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
-Requirements
+
+## Requirements
+
 ```text
 numpy
 pandas
 matplotlib
-pymoo==0.6.0
+pymoo
+jupyter
 ```
-Run the Project
-Default run:
+
+## How to Run
+
+Open the notebook:
+
 ```bash
-python container_loading_nsga2_v2.py
+jupyter notebook container_ship_nsga_v2.ipynb
 ```
-Fast smoke test:
-```bash
-python container_loading_nsga2_v2.py --generations 20 --population 40
-```
-Custom vessel size:
-```bash
-python container_loading_nsga2_v2.py --bays 10 --rows 4 --tiers 3 --containers 120
-```
-Custom optimization budget:
-```bash
-python container_loading_nsga2_v2.py --population 150 --generations 200
-```
-Command-Line Options
-Argument	Default	Meaning
-`--bays`	8	Number of vessel bays
-`--rows`	4	Number of rows per bay
-`--tiers`	3	Number of stacking tiers
-`--containers`	96	Number of containers to place
-`--min-weight`	5.0	Minimum synthetic container weight
-`--max-weight`	20.0	Maximum synthetic container weight
-`--min-priority`	1	Earliest unloading priority
-`--max-priority`	4	Latest unloading priority
-`--max-heavier-delta`	3.0	Maximum allowed heavier-over-lighter stack delta
-`--population`	100	NSGA-II population size
-`--generations`	100	Number of generations
-`--seed`	42	Random seed
-`--output-dir`	`results`	Output directory
 
-Output Files
-`containers.csv`
-Synthetic container dataset.
-Column	Meaning
-`id`	Container ID
-`weight`	Synthetic container weight
-`priority`	Unloading priority
+Then run all cells.
 
-`positions.csv`
-Generated vessel slot grid.
-Column	Meaning
-`slot_id`	Slot index
-`bay`	Bay coordinate
-`row`	Row coordinate
-`tier`	Vertical tier coordinate
+The notebook performs the following workflow:
 
-`pareto_front.csv`
-Objective values for non-dominated solutions.
-Column	Meaning
-`solution_id`	Pareto solution index
-`unloading_violations`	Number of unloading conflicts
-`cog_deviation`	Center-of-gravity deviation
-`negative_used_slots`	Negative utilization objective
-`used_slots`	Number of unique slots used
-
-`solution_summary.csv`
-Detailed summary of Pareto solutions.
-Includes:
-Unloading violations
-Center-of-gravity deviation
-Used slots
-Duplicate slot violations
-Unsupported stack violations
-Unsafe weight-stack violations
-Total constraint violations
-
-`selected_layout.csv`
-Readable container-to-slot assignment for the selected balanced solution.
-
-`pareto_front_3d.png`
-3D plot of the Pareto front.
-Axes:
 ```text
-Unloading Violations | Center-of-Gravity Deviation | Used Slots
+Generate synthetic container data
+        ↓
+Create vessel slot grid
+        ↓
+Define objectives and constraints
+        ↓
+Run NSGA-II optimisation
+        ↓
+Extract Pareto-optimal solutions
+        ↓
+Select representative solution
+        ↓
+Export results and visualisations
 ```
 
-`selected_layout_3d.png`
-3D visualization of the selected container layout.
-Axes:
+## Results
+
+The optimiser generated a Pareto front of candidate loading layouts.
+
+The clean decision-ready summary is stored in:
+
 ```text
-Bay | Row | Tier
+results/pareto_solutions.csv
 ```
-Colour indicates unloading priority. Marker size indicates container weight.
 
-Representative Solution Selection
+Example Pareto solutions:
 
-Solution Type	Selection Logic
-Most used	Highest slot utilization, then fewer violations
-Lowest unloading violations	Best unloading-order score
-Lowest CoG deviation	Best weight-balance score
-Most feasible	Lowest total constraint violations
-Balanced	Best normalized compromise across objectives and constraint violations
-The balanced solution is exported as `selected_layout.csv`.
+| Solution | Unloading Violations | CoG Deviation | Used Slots | Interpretation                                                             |
+| -------- | -------------------: | ------------: | ---------: | -------------------------------------------------------------------------- |
+| S001     |                   29 |      0.646651 |         96 | Balanced solution with moderate unloading violations and strong slot usage |
+| S002     |                   15 |      0.753381 |         96 | Best unloading-order solution with slightly worse balance                  |
+| S003     |                   30 |      0.639909 |         96 | Best balance-focused solution with higher unloading violations             |
+| S004     |                   19 |      0.700328 |         96 | Middle-ground compromise between unloading order and balance               |
+| S005     |                   17 |      0.715040 |         96 | Low violation count with moderate balance trade-off                        |
 
-Founder-Style Product Diagnosis
-User
-A logistics planner, operations research student, shipping analyst, or portfolio reviewer.
-Pain Point
-Container loading decisions involve trade-offs that are hard to compare manually.
-Smallest Useful Version
-A synthetic optimizer that generates vessel layouts and exposes trade-offs between unloading order, stability, and utilization.
-Script
-A reproducible Python script with clean outputs, Pareto-front analysis, selected layout export, and visual decision support.
+The third optimiser objective is internally represented as `-96` because `pymoo` minimises all objectives. In plain terms, this corresponds to 96 used vessel slots.
 
-Scientific and Optimization Skills Demonstrated
+## Decision Interpretation
+
+There is no single “best” loading plan.
+
+The recommended solution depends on the operational priority:
+
+| Priority                     | Recommended Solution                              |
+| ---------------------------- | ------------------------------------------------- |
+| Minimise unloading conflicts | S002                                              |
+| Improve vessel balance       | S003                                              |
+| Balanced compromise          | S004                                              |
+| Strong slot utilisation      | Any Pareto solution shown, since all use 96 slots |
+
+A logistics planner should not choose the solution with the lowest value in only one column. The value of the Pareto front is that it exposes trade-offs clearly.
+
+## Visual Outputs
+
+Recommended visual assets:
+
+```text
+assets/pareto-front.png
+assets/selected-layout-3d.png
+assets/optimisation-workflow.png
+assets/objective-comparison.png
+```
+
+Use them in the README like this:
+
+```markdown
+![Pareto Front](assets/pareto-front.png)
+![Selected Layout](assets/selected-layout-3d.png)
+```
+
+## Scientific and Optimisation Skills Demonstrated
+
 This project demonstrates:
-Multi-objective optimization
-Constraint modeling
-Evolutionary algorithms
-Pareto-front analysis
-Integer decision repair
-Synthetic data generation
-Logistics optimization
-3D visualization
-Decision-support reporting
-The scientific value is in the trade-off modeling. This is not meant to be a full industrial loading solver. It is a controlled optimisation prototype.
 
-Security and Data Notes
-This project is low-risk.
-Area	Status
-Secrets	None
-API keys	None
-User data	None
-External user input	None
-File uploads	None
-Dataset	Synthetic
-Privacy risk	Low
-Main dependency risk	`pymoo` version compatibility
+* Multi-objective optimisation
+* Evolutionary algorithms
+* NSGA-II
+* Pareto-front analysis
+* Constraint modelling
+* Synthetic data generation
+* Integer assignment representation
+* Logistics simulation
+* Vessel-loading decision support
+* 3D visualisation
+* Trade-off analysis
 
-Limitations
-Synthetic data only
-Simplified vessel geometry
-Simplified stability proxy
-No crane sequencing
-No port schedule constraints
-No hazardous-material rules
-No refrigerated-container slot rules
-No real-world vessel trim model
-NSGA-II may need tuning for larger instances
+The scientific value is in the modelling of competing objectives and constraints. This is not intended to be a full industrial vessel-loading solver.
 
-Future Improvements
-Add real or anonymized container manifests
-Add crane-move minimization
-Add hazardous-material separation rules
-Add reefer container slot constraints
-Add port sequence modeling
-Add vessel trim and stability constraints
-Add Plotly interactive 3D layout viewer
-Add Streamlit Pareto-front explorer
-Add sensitivity analysis for population size and generations
-Add repeated runs with seed-level robustness checks
+## Security and Data Notes
+
+This project is low-risk from a data-security perspective.
+
+| Area                  | Status                        |
+| --------------------- | ----------------------------- |
+| API keys              | None                          |
+| Secrets               | None                          |
+| User data             | None                          |
+| Customer data         | None                          |
+| External file uploads | None                          |
+| Dataset               | Synthetic                     |
+| Privacy risk          | Low                           |
+| Main dependency risk  | `pymoo` version compatibility |
+
+Recommended hygiene:
+
+* Do not commit private manifests or real logistics data
+* Keep generated results reproducible with a fixed random seed
+* Pin dependency versions if exact reproducibility is required
+* Avoid presenting synthetic data as real operational data
+
+## Limitations
+
+* Synthetic data only
+* Simplified vessel geometry
+* Simplified centre-of-gravity proxy
+* No crane sequencing
+* No port schedule constraints
+* No hazardous-material separation rules
+* No refrigerated-container slot constraints
+* No real-world vessel trim or hydrostatic stability model
+* NSGA-II performance may vary with population size, generations, and random seed
+
+## Future Improvements
+
+* Convert the notebook into a standalone Python script
+* Add repeated runs across multiple random seeds
+* Add sensitivity analysis for population size and generation count
+* Add crane-move minimisation
+* Add hazardous-material separation rules
+* Add reefer container slot constraints
+* Add port-sequence modelling
+* Add more realistic vessel stability constraints
+* Add Plotly-based interactive 3D visualisation
+* Add Streamlit dashboard for Pareto-front exploration
+* Add automated smoke tests for result generation
+
+## Founder-Style Product Diagnosis
+
+| Question                | Answer                                                                                        |
+| ----------------------- | --------------------------------------------------------------------------------------------- |
+| User                    | Logistics planner, shipping analyst, operations research student, AI portfolio reviewer       |
+| Pain point              | Container loading trade-offs are hard to compare manually                                     |
+| Smallest useful version | Synthetic optimiser that exposes trade-offs between unloading order, balance, and utilisation |
+| Output                  | Pareto-front solutions, layout visualisation, and decision-ready CSV summaries                |
+| Why it matters          | It turns optimisation output into operational decision support                                |
+
+## Final Verdict
+
+This project is strongest when positioned as a **controlled optimisation prototype**, not as a production shipping solver.
+
+Its value is that it shows how multi-objective optimisation can turn a messy logistics planning problem into a set of interpretable decision options. That is exactly the kind of thinking needed in AI engineering, data science, operations research, and decision intelligence roles.
+
+## Portfolio One-Liner
+
+Built a Python-based NSGA-II cargo loading optimiser that generates Pareto-efficient vessel loading layouts by balancing unloading order, centre-of-gravity deviation, slot utilisation, and stacking feasibility.
+
 
 
