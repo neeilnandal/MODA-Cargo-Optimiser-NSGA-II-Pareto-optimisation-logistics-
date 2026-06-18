@@ -95,7 +95,7 @@ Project Structure
 ```text
 container-loading-nsga2-v2/
 │
-├── container_loading_nsga2_v2.py
+├── container_loading_nsga2_v2.ipynb
 ├── README.md
 ├── requirements.txt
 ├── .gitignore
