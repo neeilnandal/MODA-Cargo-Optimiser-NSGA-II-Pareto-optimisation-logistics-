@@ -4,6 +4,21 @@ A multi-objective optimisation project for container placement on a cargo vessel
 
 The project models a simplified container-loading problem where containers must be assigned to vessel slots while balancing unloading order, vessel stability, slot utilisation, and stacking feasibility. The goal is not to produce one “perfect” loading plan. The goal is to generate a set of strong trade-off solutions that a logistics planner can compare.
 
+## Project Snapshot
+
+| Area                | Details                                                                                                                                                                       |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**          | Complete                                                                                                                                                                      |
+| **Problem**         | Generate feasible container-loading layouts while balancing unloading practicality, vessel balance, slot utilisation, and stacking constraints                                |
+| **Approach**        | Constrained NSGA-II optimisation produces a Pareto front of trade-off solutions rather than a single hidden weighted-score answer                                             |
+| **Tech**            | Python, `pymoo`, NSGA-II, NumPy, Pandas, Matplotlib, Jupyter                                                                                                                  |
+| **Data**            | Synthetic container weights and unloading-priority data                                                                                                                       |
+| **Reproducibility** | Install dependencies with `pip install -r requirements.txt`, then run `container_ship_nsga_v2.ipynb`                                                                          |
+| **Validation**      | Duplicate-slot, unsupported-stack, and unsafe weight-stack constraints; exported Pareto solutions and 3D layout visualisations                                                |
+| **Key result**      | On the default synthetic vessel configuration, selected Pareto solutions use all 96 available slots while exposing different unloading-order and centre-of-gravity trade-offs |
+| **Scope**           | Decision-support prototype, not an industrial vessel-stability or port-scheduling solver                                                                                      |
+
+
 ## Repository Summary
 
 | Field         | Details                                                                                                      |
